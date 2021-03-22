@@ -41,6 +41,45 @@ Predictive performance (R2) of an anxious depression trained model tested on thr
 
 Predictive performance of a depression model trained using only Tweets (n = 756), Retweets (n = 637), or Likes (n = 902). 
 
+## Machine Learning 
+
+### Elastic_net_features.py
+
+Text features plus age and gender to train elastic net models 
+
+### Twitter_CV_TF.py
+
+Elastic net models trained on text features only with depression as the target outcome and tested on 8 other psychiatric scales
+
+### Twitter_CV_TD.py
+
+Elastic net models trained on text features only with Anxious Depression as the target outcome and tested on two other transdiagnostic dimension (Compulsivity and Instrusive Thoughts/Social Withdrawal)
+
+### Twitter_CV_AgeGender.py
+
+Elastic net models trained on text features plus age/gender, trained on depression and tested on all other psychiatric dimensions
+
+### Selection_Frequencies.py
+
+Text feature selection frequencies for models trained/tested separately on each psychiatric dimension 
+
+#### Best_models.py
+
+Elastic net model performance for models trained and tested on each psychiatric scale 
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
 
 
 
