@@ -11,6 +11,7 @@ library(ggplot2)
 library(corrplot)
 library(extrafont)
 loadfonts(device = "win")
+
 setwd('C:/Users/seanw/TCDUD.onmicrosoft.com/Claire Gillan - Gillan Lab Resources/Projects/Transdiagnostic_Twitter/')
 
 # standard threshold for removal should be 3 SDs from the mean on any variable
@@ -80,11 +81,11 @@ text_features$Day <- as.numeric(text_features$Day)
 participants <- participants %>% filter(Id %in% text_features$Id)
 
 #filter out participants by percentile of data 
-participants <- participants %>% 
-  filter((participants$tweet + participants$retweet + participants$like) >=
-           quantile((participants$tweet + participants$retweet + participants$like),0.75) &
-           (participants$tweet + participants$retweet + participants$like) <
-           quantile((participants$tweet + participants$retweet + participants$like),1))
+#participants <- participants %>% 
+#  filter((participants$tweet + participants$retweet + participants$like) >=
+#           quantile((participants$tweet + participants$retweet + participants$like),0.75) &
+#           (participants$tweet + participants$retweet + participants$like) <
+#           quantile((participants$tweet + participants$retweet + participants$like),1))
 
 mean(participants$tweet + participants$retweet + participants$like)
 
@@ -115,10 +116,8 @@ text_features <- text_features %>% select(-Day)
 text_features_mean <- aggregate(. ~ Id , data = text_features, FUN = "mean")
 text_features_sd <- aggregate(. ~ Id , data = text_features, FUN = "sd")
 
-
-#weights are from the eLife paper and will be used to construct transdiagnostic scores for each subject
-weights <- read.csv("Participant_Data/weights.csv", stringsAsFactor=FALSE)
-
+#weights from Rouault 
+weights <- read.csv("Participant_Data/weights_Rouault.csv", stringsAsFactor=FALSE)
 ################################################################
 
 #not enough participants in genders not male or female, add together to create 3rd category
@@ -194,7 +193,6 @@ setnames(participants, old=c('AUDIT_1', 'AUDIT_2', 'AUDIT_C_1', 'AUDIT_C_2', 'AU
 
 setnames(participants, old=c("STAI_T_1", "STAI_T_2","STAI_T_3","STAI_T_4","STAI_T_5","STAI_T_6","STAI_T_7","STAI_T_8","STAI_T_9","STAI_T_10","STAI_T_11","STAI_T_12","STAI_T_13","STAI_T_14","STAI_T_15","STAI_T_16","STAI_T_17","STAI_T_18","STAI_T_19","STAI_T_20"),  new=c("STAI_1", "STAI_2","STAI_3","STAI_4","STAI_5","STAI_6","STAI_7","STAI_8","STAI_9","STAI_10","STAI_11","STAI_12","STAI_13","STAI_14","STAI_15","STAI_16","STAI_17","STAI_18","STAI_19","STAI_20"))
 
-# Caoimhe can you please check this is correct. I am basing this on a big assumption, which is that the order of items in the datafile UnEx then CogDis etc is the same as in the original questionnaire. I imagine they are not, so need to check that the OLD names correspond accurately to the NEW names we want (which just go from 1-43 straight from the order in the original questionnaire)
 setnames(participants, old=c("SSMS.UnEx_1","SSMS.UnEx_2","SSMS.UnEx_3","SSMS.UnEx_4","SSMS.UnEx_5","SSMS.UnEx_6","SSMS.UnEx_7","SSMS.UnEx_8",
                              "SSMS.UnEx_9","SSMS.UnEx_10","SSMS.UnEx_11","SSMS.UnEx_12","SSMS.CogDis_1","SSMS.CogDis_2","SSMS.CogDis_3","SSMS.CogDis_4",
                              "SSMS.CogDis_5","SSMS.CogDis_6","SSMS.CogDis_7","SSMS.CogDis_8","SSMS.CogDis_9","SSMS.CogDis_10","SSMS.CogDis_11","SSMS.IntAn_1",
@@ -226,11 +224,22 @@ SW$SW_score = as.numeric(scale(SW$SW_score))
 ############################################################################################################################################
 participants = cbind(participants, AD[c("AD_score")],CIT[c("CIT_score")], SW[c("SW_score")])
 
+#threshold <- text_features %>% group_by(Id) %>% summarise(WC_sum = sum(WC,na.rm = T))
+#threshold <- threshold[order(threshold$WC_sum,decreasing = T),]
+
+#threshold <- text_features %>% group_by(Id) %>% summarise(WC_sum = sum(WC,na.rm = T)) %>% filter(WC_sum >= 200)
 
 
 df_mean <- text_features_mean %>% inner_join(participants, by=c("Id"))
 df_sd <- text_features_sd %>% inner_join(participants, by=c("Id"))
 df_mssd <- text_features_mssd %>% inner_join(participants, by=c("Id"))
+
+
+#threshold <- threshold %>% filter(Id %in% df_mean$Id)
+#threshold <- threshold[1:476,]
+
+#df_mean <- df_mean %>% filter(Id %in% threshold$Id)
+
 
 #LIWC text features, Age, total scores 
 features_ml <- df_mean[,c(2:87,112,113,379:387)]
@@ -241,8 +250,17 @@ corrplot(correlation_mat,is.corr = F,tl.cex = 2,cl.ratio = 0.25,tl.srt = 45,cl.a
          cl.cex = 2,method = "square", tl.pos='n')
 
 
-write.csv(features_ml,file = 'ElasticNet/mean_features.csv',row.names = FALSE)
-write.csv(features_ml_td,file = 'ElasticNet/mean_features_td.csv',row.names = FALSE)
+SW_resid <- resid(glm(SW_score ~ AD_score + CIT_score, data = features_ml_td))
+AD_resid <- resid(glm(AD_score ~ SW_score + CIT_score, data = features_ml_td))
+CIT_resid <- resid(glm(CIT_score ~ AD_score + SW_score, data = features_ml_td))
+
+features_ml_td_resid <- data.frame(features_ml_td[,1:88],AD_resid,CIT_resid,SW_resid)
+
+
+write.csv(features_ml,file = 'ElasticNet/mean_features_top204.csv',row.names = FALSE)
+
+write.csv(features_ml_td,file = 'ElasticNet/mean_features_td_rouault.csv',row.names = FALSE)
+write.csv(features_ml_td_resid,file = 'ElasticNet/mean_features_td_resid_rouault.csv',row.names = FALSE)
 
 
 #write.csv(features_sd_ml,file = 'ElasticNet/sd_features.csv',row.names = FALSE)
