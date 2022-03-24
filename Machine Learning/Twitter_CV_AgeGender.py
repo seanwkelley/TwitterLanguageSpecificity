@@ -26,6 +26,7 @@ from sklearn.linear_model import ElasticNetCV
 from sklearn.model_selection import cross_validate
 from sklearn import metrics
 from sklearn.metrics import r2_score
+from scipy.stats import pearsonr
 os.chdir('C:/Users/seanw/TCDUD.onmicrosoft.com/Claire Gillan - Gillan Lab Resources/Projects/Transdiagnostic_Twitter')
 
 #load datasets
@@ -46,6 +47,8 @@ df.to_numpy()
 X = df.iloc[:,0:88]
 y = df.iloc[:,88:97]
 
+print(y)
+
 #70% training set for hyperparameter validation and a 30% test set 
 X, X_final_test, y, y_final_test = train_test_split(
      X, y, stratify = X['Gender'],test_size=0.30, random_state=42)
@@ -62,12 +65,13 @@ r_list_audit = list(); r_list_aes = list(); r_list_stai = list()
 betas = np.empty(shape=(88,1))
 inter = list()
 
-NUM_TRIALS = 1
+NUM_TRIALS = 100
 for i in range(NUM_TRIALS):
 	print(i)
 
 	#shuffle the text features 
-	X.iloc[:,0:86] = X.iloc[:,0:86].sample(frac=1).reset_index(drop=True)
+	X.iloc[:,0:86] = X.iloc[:,0:86].sample(frac=1,random_state = i).reset_index(drop=True)
+
 
 	# configure the cross-validation procedure
 	#stratify outer loops by gender, to ensure gender split in folds is similar to overall representation in full sample
@@ -95,15 +99,15 @@ for i in range(NUM_TRIALS):
 		betas = np.append(betas,coefs,axis = 1)
 		target_pred = result.predict(X_test)
 
-		rsquare = result.score(X_final_test,y_final_test['SDS_total'])
-		rsquare_oci = result.score(X_final_test,y_final_test['OCI_total'])
-		rsquare_ssms = result.score(X_final_test,y_final_test['SSMS_total'])
-		rsquare_bis = result.score(X_final_test,y_final_test['BIS_total'])
-		rsquare_lsas = result.score(X_final_test,y_final_test['LSAS_total'])
-		rsquare_eat = result.score(X_final_test,y_final_test['EAT_total'])
-		rsquare_audit = result.score(X_final_test,y_final_test['AUDIT_total'])
-		rsquare_aes = result.score(X_final_test,y_final_test['AES_total'])
-		rsquare_stai = result.score(X_final_test,y_final_test['STAI_total'])
+		rsquare = result.score(X_test,y_test['SDS_total'])
+		rsquare_oci = result.score(X_test,y_test['OCI_total'])
+		rsquare_ssms = result.score(X_test,y_test['SSMS_total'])
+		rsquare_bis = result.score(X_test,y_test['BIS_total'])
+		rsquare_lsas = result.score(X_test,y_test['LSAS_total'])
+		rsquare_eat = result.score(X_test,y_test['EAT_total'])
+		rsquare_audit = result.score(X_test,y_test['AUDIT_total'])
+		rsquare_aes = result.score(X_test,y_test['AES_total'])
+		rsquare_stai = result.score(X_test,y_test['STAI_total'])
 
 
 		# store the result
@@ -139,9 +143,12 @@ best_parameters = pd.DataFrame(
     })
 tuned = best_parameters['r2_sds'].idxmax(axis = 0)
 
+print(best_parameters['r2_sds'][tuned])
+
 betas = pd.DataFrame(betas)
 betas = betas.drop(betas.columns[[0]], axis=1) 
 betas.index = X.columns 
+print(betas)
 #betas.to_csv('ElasticNet/betas.csv',index = False)
 
 
@@ -160,6 +167,17 @@ audit_score = r2_score(y_final_test['AUDIT_total'],sds_test)
 aes_score = r2_score(y_final_test['AES_total'],sds_test)
 stai_score = r2_score(y_final_test['STAI_total'],sds_test)
 
+sds_score_r = pearsonr(y_final_test['SDS_total'],sds_test)[0]
+oci_score_r = pearsonr(y_final_test['OCI_total'],sds_test)[0]
+ssms_score_r = pearsonr(y_final_test['SSMS_total'],sds_test)[0]
+bis_score_r = pearsonr(y_final_test['BIS_total'],sds_test)[0]
+lsas_score_r = pearsonr(y_final_test['LSAS_total'],sds_test)[0]
+eat_score_r = pearsonr(y_final_test['EAT_total'],sds_test)[0]
+audit_score_r = pearsonr(y_final_test['AUDIT_total'],sds_test)[0]
+aes_score_r = pearsonr(y_final_test['AES_total'],sds_test)[0]
+stai_score_r = pearsonr(y_final_test['STAI_total'],sds_test)[0]
+
+
 test_scores = pd.DataFrame(
     {'sds': sds_score,
      'oci': oci_score,
@@ -173,6 +191,22 @@ test_scores = pd.DataFrame(
     }, index=[0])
 
 
+test_scores_pearson = pd.DataFrame(
+    {'sds': sds_score_r,
+     'oci': oci_score_r,
+     'ssms': ssms_score_r,
+     'bis': bis_score_r,
+     'lsas': lsas_score_r,
+     'eat': eat_score_r,
+     'audit': audit_score_r,
+     'aes': aes_score_r,
+     'stai': stai_score_r
+    }, index=[0])
+
+
 print(test_scores)
+print(test_scores_pearson)
 
 #best_parameters.to_csv('ElasticNet/tf_ag_mean.csv',index = False)
+#test_scores.to_csv('ElasticNet/tf_ag_mean_shuffle_2.csv',index = False)
+#test_scores_pearson.to_csv('ElasticNet/tf_ag_mean_shuffle_pearson.csv',index = False)
