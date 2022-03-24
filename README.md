@@ -28,26 +28,35 @@ Depression  model text feature selection frequencies and dendrogram of language 
 
 Transdiagnostic dimension text feature selection frequencies 
 
-### FiguresS1_S2_S3.R
+### FiguresS1_S2_S6.R
 
 Code for Supplmentary Figures S1, S2, S3 in supplementary text 
 
 Figure S1
-Histograms of 9 psychiatric scales with means and standard deviations. 
-
-Figure S2 
 Associations between 9 psychiatric questionnaires and age/gender 
 
-Figure S3
+Figure S2 
 Bivariate correlations among the 9 psychiatric questionnaires and age. 
+
+Figure S6
+Histograms of 9 psychiatric scales with means and standard deviations. 
+
+
+### FigureS3.R
+
+Predictive performance (R2) of an anxious depression trained model tested on three transdiagnostic dimensions: anxious depression, compulsivity and intrusive thoughts, and social withdrawal. 
 
 ### FigureS4.R
 
-Predictive performance (R2) of an anxious depression trained model tested on three transdiagnostic dimensions: anxious depression, compulsivity and intrusive thoughts, and social withdrawal. 
+Depression residuals from LIWC text feature only model
 
 ### FigureS5.R
 
 Predictive performance of a depression model trained using only Tweets (n = 756), Retweets (n = 637), or Likes (n = 902). 
+
+### FigureS7.R
+
+Power to detect an effect size double the observed depression predictive performance (i.e., r = 0.32) in simulated data
 
 ## Machine Learning 
 
