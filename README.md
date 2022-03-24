@@ -18,7 +18,15 @@ Elastic Net predictive performance of a depression model on itself, and  9 other
 
 ### Figure4.R
 
+Comparison of text feature only random forest models trained on either i) a depression self-report questionnaire or ii) depression relevant keywords. 
+
+### Figure5.R
+
 Depression  model text feature selection frequencies and dendrogram of language similarities between aspects of mental health
+
+### Figure6.R
+
+Transdiagnostic dimension text feature selection frequencies 
 
 ### FiguresS1_S2_S3.R
 
