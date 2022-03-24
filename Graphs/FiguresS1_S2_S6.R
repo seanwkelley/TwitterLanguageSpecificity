@@ -1,4 +1,4 @@
-#Supplementary Figures 1-3
+#Supplementary Figures 1,2, 6
 
 ################################################################
 
@@ -276,7 +276,7 @@ participants$STAI_total = rowSums(sapply(participants[ , grepl( "STAI" , names( 
 
 
 ############################################################################################################################################
-#Figure S1
+#Figure S6
 #histograms of 9 scales
 
 #schizotypy, depression, general anxiety, social anxiety, impulsivity, ocd, apathy, eating disorders, alcohol abuse
@@ -391,7 +391,7 @@ mean.norm2 = cbind(mean.norm, df_mean[c("Id", "Age", "Gender","AD_score", "CIT_s
 
 #---------------------------------------------------------
 
-#Figure S2
+#Figure S1
 #Association between scales and age/gender
 
 
@@ -488,8 +488,8 @@ dev.off()
 
 ####################################################################
 
-#Figure S3
-#Correlation between scales 
+#Figure S2
+#Correlations between scales 
 
 correlation.scales <- mean.norm2[,c(102,107:115)]
 colnames(correlation.scales) <- c("Age","SSMS","SDS","OCI","EAT","BIS","LSAS","AUDIT","AES","STAI")
