@@ -1,4 +1,4 @@
-# Supplementary Figure 4
+# Supplementary Figure 3
 library(dendextend)
 library(ggdendro)
 library(ggplot2)
